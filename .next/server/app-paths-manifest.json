@@ -1,0 +1,6 @@
+{
+  "/(authenticated)/crm/dashboard/page": "app/(authenticated)/crm/dashboard/page.js",
+  "/(authenticated)/crm/broadcast/page": "app/(authenticated)/crm/broadcast/page.js",
+  "/(authenticated)/crm/leadership/page": "app/(authenticated)/crm/leadership/page.js",
+  "/(authenticated)/crm/badges/page": "app/(authenticated)/crm/badges/page.js"
+}
