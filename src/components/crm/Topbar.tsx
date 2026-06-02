@@ -1,10 +1,17 @@
+"use client";
+
 import { Search, Bell, Settings, Plus } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function Topbar() {
+  const pathname = usePathname();
+  const isChats = pathname === "/chats";
+
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-[#EDEEF5]">
       <div className="flex items-center gap-10 px-4 py-[7px]">
-        
+
         {/* Search + My Chats / Dashboard toggle */}
         <div className="flex flex-1 items-center gap-4">
           {/* Search */}
@@ -19,15 +26,28 @@ export function Topbar() {
 
           {/* My Chats + Dashboard pill */}
           <div className="flex items-center bg-white rounded-[73px] border border-black">
-            <span className="text-[#5F6265] text-[17px] font-bold px-5 py-[11px]">
+            <Link
+              href="/crm/chats"
+              className={`text-[17px] font-bold py-[11px] px-[72px] rounded-[73px] transition-colors no-underline ${
+                isChats
+                  ? "bg-[#3525CD] text-white"
+                  : "text-[#5F6265] bg-transparent"
+              }`}
+              style={isChats ? { boxShadow: "0px 0px 2px #00000057" } : {}}
+            >
               my chats
-            </span>
-            <button
-              className="bg-[#3525CD] text-white text-[17px] font-bold py-[11px] px-[72px] rounded-[73px] m-[1px]"
-              style={{ boxShadow: "0px 0px 2px #00000057" }}
+            </Link>
+            <Link
+              href="/"
+              className={`text-[17px] font-bold py-[11px] px-[72px] rounded-[73px] transition-colors no-underline ${
+                !isChats
+                  ? "bg-[#3525CD] text-white"
+                  : "text-[#5F6265] bg-transparent"
+              }`}
+              style={!isChats ? { boxShadow: "0px 0px 2px #00000057" } : {}}
             >
               Dashboard
-            </button>
+            </Link>
           </div>
         </div>
 
