@@ -1,145 +1,90 @@
+"use client";
+
 import * as React from "react";
+import { ChevronDown, X } from "lucide-react";
 
 export default function FiltersBar() {
   const filters = [
-    {
-      label: "TIMEFRAME",
-      value: "04 May - 10 May",
-      valueColor: "text-[#3525CD]",
-      valueBold: true,
-    },
-    {
-      label: "DATE BASIS",
-      value: "Lead Created",
-      valueColor: "text-[#1B1B24]",
-      valueBold: false,
-    },
-    {
-      label: "COMPARISON",
-      value: "Prev 7 Days",
-      valueColor: "text-[#1B1B24]",
-      valueBold: false,
-      toggle: true,
-    },
-    {
-      label: "TEAM LEAD",
-      value: "All Leads",
-      valueColor: "text-[#1B1B24]",
-      valueBold: false,
-    },
-    {
-      label: "ASSIGNMENT",
-      value: "All Agents",
-      valueColor: "text-[#1B1B24]",
-      valueBold: false,
-    },
-    {
-      label: "SOURCE",
-      value: "All Sources",
-      valueColor: "text-[#1B1B24]",
-      valueBold: false,
-    },
+    { label: "TIMEFRAME", value: "04 May - 10 May", valueColor: "text-[#3525CD]", valueBold: true, hasToggle: false },
+    { label: "DATE BASIS", value: "Lead Created", valueColor: "text-[#1B1B24]", valueBold: false, hasToggle: false },
+    { label: "COMPARISON", value: "Prev 7 Days", valueColor: "text-[#1B1B24]", valueBold: false, hasToggle: true },
+    { label: "TEAM LEAD", value: "All Leads", valueColor: "text-[#1B1B24]", valueBold: false, hasToggle: false },
+    { label: "ASSIGNMENT", value: "All Agents", valueColor: "text-[#1B1B24]", valueBold: false, hasToggle: false },
+    { label: "SOURCE", value: "All Sources", valueColor: "text-[#1B1B24]", valueBold: false, hasToggle: false },
+  ];
+
+  const activeFilters = [
+    { label: "04 May - 10 May 2025", color: "#3525CD", bg: "#3525CD0D", border: "#3525CD33" },
+    { label: "Vs. Prev 7 Days", color: "#464555", bg: "#565E740D", border: "#C7C4D8" },
   ];
 
   return (
     <div
-      className="self-stretch bg-transparent pt-7 pb-[29px] px-7 rounded-[13px]"
-      style={{ boxShadow: "0px 2.2727270126342773px 4px #0F172A0D" }}
+      className="bg-white rounded-b-xl border border-[#C7C4D8] mx-4 mt-2 mb-4"
+      style={{
+        padding: "16px 20px",
+        borderBottomRightRadius: "12px",
+        borderBottomLeftRadius: "12px",
+        borderWidth: "1px",
+      }}
     >
-      {/* Filter dropdowns row */}
-      <div className="flex items-center self-stretch">
-        {filters.map((f, i) => (
-          <div
-            key={f.label}
-            className={`flex flex-1 flex-col gap-2 ${i < filters.length - 1 ? "mr-[19px]" : ""}`}
-          >
+      {/* Filter dropdowns grid */}
+      <div className="grid grid-cols-6 gap-3">
+        {filters.map((filter) => (
+          <div key={filter.label} className="flex flex-col gap-1.5">
             {/* Label row */}
-            <div className="flex items-center self-stretch px-0.5">
-              {/* Icon placeholder — small colored square */}
-              <div className="w-[13px] h-[13px] mr-[7px] rounded-sm bg-[#565E74] opacity-50" />
-              <span className="text-[#565E74] text-xs font-bold mr-2">{f.label}</span>
-              {/* Divider line */}
-              <div className="flex-1 h-[1px] bg-[#C7C4D8] opacity-40" />
+            <div className="flex items-center px-0.5">
+              <div className="w-2.5 h-2.5 mr-1.5 rounded-sm bg-[#565E74] opacity-50" />
+              <span className="text-[10px] font-semibold text-[#565E74] mr-1.5">{filter.label}</span>
+              <div className="flex-1 h-px bg-[#C7C4D8] opacity-40" />
             </div>
 
-            {/* Dropdown value */}
-            {f.toggle ? (
-              /* Comparison field has a toggle switch instead of chevron */
-              <div
-                className="flex justify-between items-center self-stretch bg-[#F5F2FF66] py-3 px-3.5 rounded-[9px] border border-[#C7C4D899]"
-                style={{ boxShadow: "0px 1.1363635063171387px 2px #0000000D" }}
-              >
-                <span className={`${f.valueColor} text-[15px] ${f.valueBold ? "font-bold" : ""}`}>
-                  {f.value}
+            {/* Value field */}
+            {filter.hasToggle ? (
+              <div className="flex justify-between items-center bg-[#F5F2FF66] py-2 px-3 rounded-lg border border-[#C7C4D899]">
+                <span className={`${filter.valueColor} text-[13px] ${filter.valueBold ? "font-semibold" : ""}`}>
+                  {filter.value}
                 </span>
-                {/* Toggle pill */}
-                <div className="flex items-center bg-indigo-600 py-1 pl-[22px] pr-[5px] rounded-full">
-                  <div
-                    className="bg-white w-[13px] h-[13px] rounded-full"
-                    style={{ boxShadow: "0px 1.1363635063171387px 2px #0000000D" }}
-                  />
+                <div className="flex items-center bg-indigo-600 py-0.5 pl-4 pr-1 rounded-full">
+                  <div className="bg-white w-2.5 h-2.5 rounded-full shadow-sm" />
                 </div>
               </div>
             ) : (
-              <div
-                className="flex justify-between items-center self-stretch bg-[#F5F2FF66] py-[13px] px-[15px] rounded-[9px] border border-[#C7C4D899]"
-                style={{ boxShadow: "0px 1.1363635063171387px 2px #0000000D" }}
-              >
-                <span className={`${f.valueColor} text-[15px] ${f.valueBold ? "font-bold" : ""}`}>
-                  {f.value}
+              <div className="flex justify-between items-center bg-[#F5F2FF66] py-2 px-3 rounded-lg border border-[#C7C4D899]">
+                <span className={`${filter.valueColor} text-[13px] ${filter.valueBold ? "font-semibold" : ""}`}>
+                  {filter.value}
                 </span>
-                {/* Chevron down */}
-                <svg width="11" height="7" viewBox="0 0 11 7" fill="none">
-                  <path
-                    d="M1 1L5.5 6L10 1"
-                    stroke="#1B1B24"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <ChevronDown className="w-3 h-3 text-[#1B1B24]" strokeWidth={1.5} />
               </div>
             )}
           </div>
         ))}
       </div>
 
-      {/* Active filters + action buttons row */}
-      <div className="flex justify-between items-center self-stretch py-2 mt-2">
-        {/* Left: Active filters */}
-        <div className="flex shrink-0 items-center gap-[18px]">
-          <span className="text-[#464555] text-xs font-bold">ACTIVE FILTERS</span>
-          <div className="flex shrink-0 items-center gap-3">
-            {/* Date filter chip */}
-            <div className="flex shrink-0 items-center bg-[#3525CD0D] py-2 px-[15px] gap-[9px] rounded-[9px] border border-[#3525CD33]">
-              <span className="text-[#3525CD] text-[13px] font-bold">04 May - 10 May 2025</span>
-              <button className="w-[9px] h-[9px] flex items-center justify-center">
-                <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                  <path d="M1 1L8 8M8 1L1 8" stroke="#3525CD" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
-            {/* Vs. Prev filter chip */}
-            <div className="flex shrink-0 items-center bg-[#565E740D] py-2 px-[15px] gap-[9px] rounded-[9px] border border-[#C7C4D8]">
-              <span className="text-[#464555] text-[13px] font-bold">Vs. Prev 7 Days</span>
-              <button className="w-[9px] h-[9px] flex items-center justify-center">
-                <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                  <path d="M1 1L8 8M8 1L1 8" stroke="#464555" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
+      {/* Active filters and action buttons */}
+      <div className="flex justify-between items-center mt-3 pt-1.5">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-bold text-[#464555]">ACTIVE FILTERS</span>
+          <div className="flex items-center gap-2">
+            {activeFilters.map((f, idx) => (
+              <div
+                key={idx}
+                className="flex items-center py-1.5 px-3 gap-1.5 rounded-lg border"
+                style={{ backgroundColor: f.bg, borderColor: f.border }}
+              >
+                <span className="text-[12px] font-semibold" style={{ color: f.color }}>{f.label}</span>
+                <button>
+                  <X className="w-2.5 h-2.5" strokeWidth={1.5} style={{ color: f.color }} />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Right: Reset + Apply */}
-        <div className="flex shrink-0 items-center gap-[19px]">
-          <button className="bg-[#F5F2FF] text-[#565E74] text-[15px] font-bold py-[11px] px-[29px] rounded-[9px] border border-[#C7C4D8]">
+        <div className="flex items-center gap-3">
+          <button className="bg-[#F5F2FF] text-[#565E74] text-[13px] font-semibold py-2 px-5 rounded-lg border border-[#C7C4D8] hover:bg-[#EAE6F4]">
             Reset
           </button>
-          <button
-            className="text-white text-[15px] font-bold py-2.5 px-[46px] rounded-[9px]"
-            style={{ boxShadow: "0px 2.2727270126342773px 4px #3525CD33" }}
-          >
+          <button className="bg-[#3525CD] text-white text-[13px] font-semibold py-2 px-6 rounded-lg shadow-sm hover:bg-[#2910B9]">
             Apply Filters
           </button>
         </div>

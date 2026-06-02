@@ -1,245 +1,240 @@
+"use client";
+
 import * as React from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Area,
+  ComposedChart,
+} from "recharts";
+import { Calendar, ChevronDown } from "lucide-react";
 
-export default function ForecastChart() {
-  const w = 780;
-  const h = 280;
-  const days = 30;
+// Generate data matching the Y-axis scale (₹17K to ₹70K)
+const generateChartData = () =>
+  Array.from({ length: 30 }, (_, i) => {
+    const day = i + 1;
+    const forecast = 18500 + day * 1750 + Math.sin(day / 3) * 1500;
+    const actual = day <= 22 ? 17000 + day * 1820 + Math.cos(day / 2.5) * 1800 : null;
+    const revisedRunRate = forecast * 1.07 + Math.sin(day / 4) * 1200;
+    const totalRevenue = forecast * 1.14 + day * 350;
+    return {
+      day,
+      forecast: Math.min(forecast, 71000),
+      actual: actual ? Math.min(actual, 69000) : null,
+      revisedRunRate: Math.min(revisedRunRate, 75000),
+      totalRevenue: Math.min(totalRevenue, 79000),
+    };
+  });
 
-  // Simulated data tuned to match the PDF visual
-  const forecast = Array.from({ length: days }, (_, i) => 28 + i * 3.8 + Math.sin(i / 3) * 4);
-  const actual = Array.from({ length: days }, (_, i) => 
-    i < 22 ? 22 + i * 4.1 + Math.cos(i / 2.5) * 7 : null
-  );
-  const revised = Array.from({ length: days }, (_, i) => 32 + i * 4.6);
-  const totalRevenue = Array.from({ length: days }, (_, i) => 18 + i * 5.2);
+const data = generateChartData();
 
-  const maxY = 220;
-
-  const x = (i: number) => 55 + (i / (days - 1)) * (w - 85);
-  const y = (v: number) => h - 45 - (v / maxY) * (h - 75);
-
-  const path = (arr: (number | null)[]) =>
-    arr
-      .map((v, i) => (v == null ? null : `${i === 0 ? "M" : "L"} ${x(i)} ${y(v)}`))
-      .filter(Boolean)
-      .join(" ");
-
-  return (
-    <div className="col-span-2 bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-xl border border-zinc-200 dark:border-zinc-800">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
-              Forecast vs Actual Graph
-            </h3>
-            <span className="text-xs font-bold tracking-widest px-3 py-1 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400">
-              PHASE 1 • FROZEN MEMORY
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload?.length) {
+    return (
+      <div className="bg-white border border-[#C7C4D8] rounded-md p-2 shadow-md min-w-[140px]">
+        <p className="text-[#565E74] text-[10px] font-medium mb-1">Day {label}</p>
+        {payload.map((entry: any, idx: number) => (
+          <div key={idx} className="flex items-center gap-1.5 text-[10px] mb-0.5">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="text-[#464555]">{entry.name}:</span>
+            <span className="text-[#1B1B24] font-medium">
+              ₹{(entry.value / 1000).toFixed(0)}K
             </span>
           </div>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            May 2026 • Daily view
-          </p>
-        </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
-        <button className="h-9 px-5 text-sm font-semibold rounded-2xl border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-          Freeze Forecast
+export default function ForecastChart() {
+  return (
+    <div className="w-full bg-white rounded-2xl shadow-sm border border-[#C7C4D880] overflow-hidden">
+      {/* Header */}
+      <div className="flex flex-wrap justify-between items-center gap-3 p-4 border-b border-[#C7C4D84D]">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="text-base md:text-lg font-semibold text-[#1B1B24]">
+            FORECAST VS ACTUAL GRAPH
+          </h2>
+          <span className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-[#F5F2FF] text-[#3525CD] border border-[#3525CD33]">
+            PHASE 1 • FROZEN MEMORY
+          </span>
+        </div>
+        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#F5F2FF] text-[#565E74] text-xs font-medium rounded-md border border-[#C7C4D8] hover:bg-[#EAE6F4]">
+          <Calendar className="w-3 h-3" /> Freeze Forecast
         </button>
       </div>
 
-      {/* Filter Pills */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {[
-          { label: "Equity", active: true },
-          { label: "Swing", active: false },
-          { label: "Nifty", active: false },
-          { label: "Commodities", active: false },
-          { label: "Repeat Sales", active: false },
-        ].map((item, i) => (
-          <span
-            key={i}
-            className={`text-xs font-medium px-4 py-1.5 rounded-full transition-all ${
-              item.active
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-            }`}
-          >
-            {item.label}
-          </span>
-        ))}
-      </div>
-
-      {/* SVG Chart */}
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full" style={{ height: "auto" }}>
-        <defs>
-          {/* Gradient for Actual Area */}
-          <linearGradient id="actualGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#6366F1" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {/* Horizontal Grid Lines */}
-        {[0, 1, 2, 3, 4].map((i) => (
-          <line
-            key={i}
-            x1="55"
-            x2={w - 30}
-            y1={45 + i * 45}
-            y2={45 + i * 45}
-            stroke="#E5E7EB"
-            strokeWidth="1"
-            strokeDasharray="3 3"
-            className="dark:stroke-zinc-700"
-          />
-        ))}
-
-        {/* Forecast Line (Blue dashed) */}
-        <path
-          d={path(forecast)}
-          stroke="#3B82F6"
-          strokeWidth="2.5"
-          fill="none"
-          strokeDasharray="6 4"
-        />
-
-        {/* Revised Run-rate (Orange) */}
-        <path
-          d={path(revised)}
-          stroke="#F59E0B"
-          strokeWidth="2.5"
-          fill="none"
-        />
-
-        {/* Total Revenue (Purple) */}
-        <path
-          d={path(totalRevenue)}
-          stroke="#8B5CF6"
-          strokeWidth="2.5"
-          fill="none"
-        />
-
-        {/* Actual Line + Area */}
-        <path
-          d={`${path(actual)} L ${x(21)} ${h - 45} L ${x(0)} ${h - 45} Z`}
-          fill="url(#actualGradient)"
-        />
-        <path
-          d={path(actual)}
-          stroke="#10B981"
-          strokeWidth="3.5"
-          fill="none"
-        />
-
-        {/* Data Points on Actual */}
-        {actual.map((v, i) =>
-          v != null ? (
-            <circle
-              key={i}
-              cx={x(i)}
-              cy={y(v)}
-              r="3.5"
-              fill="#10B981"
-              stroke="white"
-              strokeWidth="2"
-            />
-          ) : null
-        )}
-
-        {/* X-Axis Labels */}
-        {Array.from({ length: 6 }).map((_, i) => {
-          const idx = Math.floor((i * (days - 1)) / 5);
-          return (
-            <text
-              key={i}
-              x={x(idx)}
-              y={h - 18}
-              textAnchor="middle"
-              className="fill-zinc-500 dark:fill-zinc-400 text-[10px] font-medium"
-            >
-              {idx + 1}
-            </text>
-          );
-        })}
-
-        {/* Y-Axis Labels */}
-        {[0, 50, 100, 150, 200].map((val, i) => (
-          <text
-            key={i}
-            x="38"
-            y={y(val) + 4}
-            textAnchor="end"
-            className="fill-zinc-500 dark:fill-zinc-400 text-[10px] font-medium"
-          >
-            {val}K
-          </text>
-        ))}
-      </svg>
-
-      {/* Legend */}
-      <div className="flex items-center gap-6 text-xs mt-3 text-zinc-500 dark:text-zinc-400">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-blue-500 rounded" style={{ borderBottom: "2px dashed #3B82F6" }} />
-          <span>Forecast Funnel</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-emerald-500 rounded" />
-          <span>Actual Line</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-amber-500 rounded" />
-          <span>Revised Run-rate</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-violet-500 rounded" />
-          <span>Total Revenue</span>
-        </div>
-      </div>
-
-      {/* Bottom KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 mt-8">
-        {[
-          {
-            label: "ORIGINAL TARGET",
-            value: "₹2,03,226",
-            note: "Stable Baseline",
-            color: "bg-cyan-500",
-          },
-          {
-            label: "REVISED TARGET",
-            value: "₹2,84,614",
-            note: "+40.0% Adjustment",
-            color: "bg-orange-500",
-          },
-          {
-            label: "ACTUAL REVENUE",
-            value: "₹26,00,020",
-            note: "MTD Cumulative",
-            color: "bg-emerald-500",
-          },
-          {
-            label: "VARIANCE",
-            value: "-₹10,31,745",
-            note: "Critical Deficit",
-            color: "bg-rose-500",
-          },
-        ].map((item, index) => (
-          <div
-            key={index}
-            className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4"
-          >
-            <div className={`w-3 h-3 rounded-full ${item.color} mb-3`} />
-            <div className="text-[10px] font-semibold tracking-widest text-zinc-500 dark:text-zinc-400">
-              {item.label}
-            </div>
-            <div className="text-2xl font-bold mt-1 text-zinc-900 dark:text-white">
-              {item.value}
-            </div>
-            <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-              {item.note}
+      {/* Filters row */}
+      <div className="flex flex-wrap justify-between items-center gap-3 p-4 border-b border-[#C7C4D833] bg-white/50">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[#565E74] text-[9px] font-medium">FORECAST MONTH</span>
+            <div className="flex items-center gap-1 px-2 py-1 bg-white border border-[#C7C4D8] rounded-md">
+              <span className="text-[#1B1B24] text-xs font-normal">May, 2026</span>
+              <ChevronDown className="w-2.5 h-2.5 text-[#565E74]" />
             </div>
           </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[#565E74] text-[9px] font-medium">HISTORICAL VIEW</span>
+            <div className="flex items-center gap-1 px-2 py-1 bg-white border border-[#C7C4D8] rounded-md">
+              <span className="text-[#1B1B24] text-xs font-normal">2026-05 frozen forecast</span>
+              <ChevronDown className="w-2.5 h-2.5 text-[#565E74]" />
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#565E74] text-[9px] font-medium">VIEW</span>
+          <div className="flex bg-[#F5F2FF] rounded-md border border-[#C7C4D8] p-0.5">
+            {["Daily", "Weekly", "Monthly"].map((v) => (
+              <button
+                key={v}
+                className={`px-3 py-0.5 text-[10px] font-medium rounded ${
+                  v === "Daily" ? "bg-[#3525CD] text-white" : "text-[#565E74]"
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Filter pills */}
+      <div className="flex flex-wrap items-center gap-2 p-4">
+        <span className="text-[#565E74] text-[9px] font-medium">FILTERS</span>
+        {["Equity", "Swing", "Nifty", "Commodities", "Repeat Sales"].map((f, idx) => (
+          <button
+            key={f}
+            className={`px-2.5 py-0.5 text-[10px] font-medium rounded-full ${
+              idx === 0
+                ? "bg-[#3525CD] text-white"
+                : "bg-[#F5F2FF] text-[#565E74] border border-[#C7C4D8]"
+            }`}
+          >
+            {f}
+          </button>
         ))}
+      </div>
+
+      {/* Chart */}
+      <div className="w-full px-4 pb-2">
+        <ResponsiveContainer width="100%" height={320}>
+          <ComposedChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+            <CartesianGrid strokeDasharray="2 2" stroke="#E5E7EB" vertical={false} />
+            <XAxis
+              dataKey="day"
+              tick={{ fontSize: 9, fill: "#737686" }}
+              tickLine={false}
+              axisLine={{ stroke: "#C7C4D8", strokeWidth: 1 }}
+              domain={[1, 30]}
+              ticks={[1, 5, 9, 13, 17, 21, 25, 29]}
+            />
+            <YAxis
+              tick={{ fontSize: 9, fill: "#737686" }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`}
+              domain={[0, 80000]}
+              ticks={[17000, 35000, 52000, 70000]}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend
+              wrapperStyle={{ paddingTop: "8px" }}
+              iconType="circle"
+              iconSize={8}
+              formatter={(v) => <span className="text-[#464555] text-[9px]">{v}</span>}
+            />
+            <Line
+              type="monotone"
+              dataKey="forecast"
+              name="Forecast Line"
+              stroke="#3B82F6"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Area
+              type="monotone"
+              dataKey="actual"
+              name="Actual Line"
+              stroke="#10B981"
+              strokeWidth={2}
+              fill="#10B98120"
+              dot={{ r: 2.5, fill: "#10B981", strokeWidth: 1, stroke: "#fff" }}
+            />
+            <Line
+              type="monotone"
+              dataKey="revisedRunRate"
+              name="Revised Run-rate"
+              stroke="#F59E0B"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="totalRevenue"
+              name="Total Revenue"
+              stroke="#EF4444"
+              strokeWidth={2}
+              dot={false}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 4 KPI Cards – exactly as per your second image */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+        {/* Original Target */}
+        <div className="rounded-lg p-3 bg-[#F5F2FF4D] border border-[#C7C4D81A]">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-[#06B6D4]" />
+            <span className="text-[#565E74] text-[10px] font-semibold tracking-wide">ORIGINAL TARGET</span>
+          </div>
+          <div className="text-base md:text-lg font-bold text-[#1B1B24] mb-1">Rs 2,03,226</div>
+          <div className="text-[9px] text-[#737686]">Stable Baseline</div>
+        </div>
+
+        {/* Revised Target */}
+        <div className="rounded-lg p-3 bg-[#F5F2FF4D] border border-[#C7C4D81A]">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-[#F97316]" />
+            <span className="text-[#565E74] text-[10px] font-semibold tracking-wide">REVISED TARGET</span>
+          </div>
+          <div className="text-base md:text-lg font-bold text-[#1B1B24] mb-1">Rs 2,84,614</div>
+          <div className="text-[9px] text-[#737686]">+40.0% Adjustment</div>
+        </div>
+
+        {/* Actual Revenue */}
+        <div className="rounded-lg p-3 bg-[#F5F2FF4D] border border-[#C7C4D81A]">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-[#10B981]" />
+            <span className="text-[#565E74] text-[10px] font-semibold tracking-wide">ACTUAL REVENUE</span>
+          </div>
+          <div className="text-base md:text-lg font-bold text-[#1B1B24] mb-1">Rs 26,00,020</div>
+          <div className="text-[9px] text-[#737686]">MTD Cumulative</div>
+        </div>
+
+        {/* Variance */}
+        <div className="rounded-lg p-3 bg-[#F5F2FF4D] border border-[#C7C4D81A]">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-[#EF4444]" />
+            <span className="text-[#565E74] text-[10px] font-semibold tracking-wide">VARIANCE</span>
+          </div>
+          <div className="text-base md:text-lg font-bold text-[#EF4444] mb-1">-Rs 10,31,745</div>
+          <div className="text-[9px] text-[#737686]">Critical Deficit</div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-[#C7C4D84D] px-4 py-2 text-right">
+        <span className="text-[#777587] text-[9px] italic">Ask to edit</span>
       </div>
     </div>
   );
