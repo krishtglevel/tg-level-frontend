@@ -1,5 +1,0 @@
-{
-  "/(authenticated)/crm/dashboard/page": "app/(authenticated)/crm/dashboard/page.js",
-  "/page": "app/page.js",
-  "/(authenticated)/crm/chats/page": "app/(authenticated)/crm/chats/page.js"
-}
