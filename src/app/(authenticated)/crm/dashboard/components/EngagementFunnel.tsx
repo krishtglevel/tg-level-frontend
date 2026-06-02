@@ -41,7 +41,7 @@ const SCORE_BANDS: ScoreBand[] = [
   { range: "0 – 19", label: "Not Engaged", count: "1,400", pct: "5.9%", dot: "bg-red-500", countColor: "text-red-700" },
 ];
 
-// Donut chart data (same percentages as SCORE_BANDS)
+// Donut chart data
 const DONUT_BANDS = [
   { pct: 13.6, color: "#4ade80" },
   { pct: 30.9, color: "#3b82f6" },
@@ -70,7 +70,7 @@ export default function EngagementFunnel() {
 
   return (
     <div className="w-full bg-white rounded-xl border border-[#EDEEF5] shadow-sm overflow-hidden">
-      {/* Header */}
+      {/* Header (unchanged) */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-5 pb-2">
         <div className="flex items-center gap-2">
           <h2 className="text-lg md:text-xl font-bold text-[#1B1B24]">Engagement funnel Flow</h2>
@@ -105,7 +105,7 @@ export default function EngagementFunnel() {
         </div>
       </div>
 
-      {/* Stage cards – horizontal scroll on mobile */}
+      {/* Stage cards – exactly as before */}
       <div className="overflow-x-auto pb-2 px-4">
         <div className="flex gap-3 min-w-[800px] md:min-w-full">
           {STAGES.map((stage, idx) => (
@@ -127,7 +127,7 @@ export default function EngagementFunnel() {
         </div>
       </div>
 
-      {/* Drop‑off badges row – aligned under each card */}
+      {/* Drop‑off badges – exactly as before */}
       <div className="overflow-x-auto pb-3 px-4">
         <div className="flex gap-3 min-w-[800px] md:min-w-full">
           {STAGES.map((stage, idx) => (
@@ -143,17 +143,17 @@ export default function EngagementFunnel() {
                   </button>
                 </>
               ) : (
-                <div className="h-12" /> // placeholder for "paid" (no drop-off)
+                <div className="h-12" />
               )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Bottom section: Donut + Table + Trend */}
-      <div className="flex flex-col lg:flex-row gap-5 p-5 pt-2">
-        {/* Left: Engagement Score Distribution */}
-        <div className="bg-white rounded-lg border border-[#EDEEF5] shadow-sm p-4 w-full lg:w-80 flex-shrink-0">
+      {/* ========== REDESIGNED BOTTOM SECTION (layout adjustment) ========== */}
+      <div className="flex flex-col lg:flex-row gap-5 p-5 pt-2 border-t border-[#EDEEF5]">
+        {/* LEFT: Engagement Score Distribution */}
+        <div className="bg-white rounded-xl border border-[#EDEEF5] shadow-sm p-4 w-full lg:w-80 flex-shrink-0">
           <div className="mb-3">
             <div className="text-slate-700 text-sm font-bold">Engagement Score Distribution</div>
             <div className="flex items-center gap-1 mt-0.5">
@@ -204,17 +204,17 @@ export default function EngagementFunnel() {
           </div>
         </div>
 
-        {/* Right: Table + Trend */}
+        {/* RIGHT: Table + Trend (stacked vertically) */}
         <div className="flex-1 flex flex-col gap-4">
           {/* Table */}
-          <div className="bg-white rounded-lg border border-[#EDEEF5] overflow-hidden shadow-sm">
-            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[#EDEEF5]">
+          <div className="bg-white rounded-xl border border-[#EDEEF5] overflow-hidden shadow-sm">
+            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[#EDEEF5] bg-white">
               <span className="text-slate-800 text-sm font-bold">Engagement Score Band Insights</span>
               <span className="text-slate-500 text-[10px]">(Last 48H)</span>
             </div>
             <div className="overflow-x-auto">
               <div className="min-w-[500px]">
-                <div className="grid grid-cols-[150px_80px_1fr_100px] bg-[#F8FAFC] px-4 py-2 text-[10px] font-bold text-slate-500 border-b">
+                <div className="grid grid-cols-[150px_80px_1fr_100px] bg-[#F8FAFC] px-4 py-2 text-[10px] font-bold text-slate-500 border-b border-[#EDEEF5]">
                   <span>BAND</span><span>LEADS</span><span>KEY BEHAVIOR</span><span className="text-right">CONVERSION RATE</span>
                 </div>
                 {[
@@ -222,7 +222,7 @@ export default function EngagementFunnel() {
                   { band: "70 – 89", label: "Engaged", dot: "bg-blue-500", leads: "2,130", behavior: "Regular activity, consuming content", rate: "7.1%", rateColor: "text-blue-700" },
                   { band: "40 – 69", label: "Moderate", dot: "bg-amber-400", leads: "2,260", behavior: "Some activity, inconsistent", rate: "3.2%", rateColor: "text-amber-700" },
                   { band: "20 – 39", label: "Low", dot: "bg-orange-500", leads: "800", behavior: "Low activity, rarely interacts", rate: "1.2%", rateColor: "text-orange-700" },
-                  { band: "0 – 19", label: "Not Engaged", dot: "bg-red-500", leads: "1,400", behavior: "Inactive, no meaningful actions", rate: "0.4%", rateColor: "text-red-700" },
+                  { band: "0 – 19", label: "Not Engaged", dot: "bg-red-500", leads: "1,400", behavior: "Inactive, no meaningful actions", rate: "0.4%", rateColor: "text-red-500" },
                 ].map((row) => (
                   <div key={row.band} className="grid grid-cols-[150px_80px_1fr_100px] items-center px-4 py-2.5 border-b last:border-0 hover:bg-[#FAFAFA] text-xs">
                     <div className="flex items-center gap-1.5">
@@ -241,8 +241,8 @@ export default function EngagementFunnel() {
             </div>
           </div>
 
-          {/* Engagement Trend mini chart */}
-          <div className="bg-white rounded-lg border border-[#EAECF0] p-4 shadow-sm">
+          {/* Engagement Trend – compact, clean */}
+          <div className="bg-white rounded-xl border border-[#EDEEF5] p-4 shadow-sm">
             <div className="flex flex-wrap items-center gap-3 mb-3">
               <span className="text-gray-800 text-sm font-bold">Engagement Trend</span>
               <div className="flex flex-wrap gap-2">

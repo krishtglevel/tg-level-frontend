@@ -7,9 +7,9 @@ interface PipelineStage {
   label: string;
   count: string;
   dropped: string | null;
-  cardBg: string;
-  cardBorder: string;
-  accentColor: string;
+  bgColor: string;
+  textColor: string;
+  width: string;
 }
 
 interface ReasonItem {
@@ -39,16 +39,17 @@ interface SummaryRow {
   highlight: boolean;
 }
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-const PIPELINE: PipelineStage[] = [
-  { label: "Leads Created", count: "8,250", dropped: null, cardBg: "#F6F9FE", cardBorder: "#003CA0", accentColor: "" },
-  { label: "Contacted", count: "5,840", dropped: "2,410 dropped", cardBg: "#F8FCFB", cardBorder: "#00946F", accentColor: "#00946F" },
-  { label: "Demo Not Joined", count: "3,430", dropped: "2,410 dropped", cardBg: "#FAF7FE", cardBorder: "#43009C", accentColor: "#43009C" },
-  { label: "Trial Started", count: "2,150", dropped: "1,280 dropped", cardBg: "#FEFBF3", cardBorder: "#946B00", accentColor: "#946B00" },
-  { label: "Payment Intent", count: "820", dropped: "1,330 dropped", cardBg: "#FDF7F9", cardBorder: "#990033", accentColor: "#990033" },
-  { label: "Paid", count: "360", dropped: "460 dropped", cardBg: "#F9FFF8", cardBorder: "#148C00", accentColor: "#148C00" },
+// ── Data for the redesigned pipeline cards ───────────────────────────────────
+const PIPELINE_CARDS: PipelineStage[] = [
+  { label: "Leads Created", count: "8,250", dropped: null, bgColor: "#DFEEFD", textColor: "#1A1D23", width: "233.71px" },
+  { label: "Contacted", count: "5,840", dropped: "2,410 dropped", bgColor: "#C9E4FE", textColor: "#1A1D23", width: "269.28px" },
+  { label: "Demo Not Joined", count: "3,430", dropped: "2,410 dropped", bgColor: "#A7D3FC", textColor: "#1A1D23", width: "269.28px" },
+  { label: "Trial Started", count: "2,150", dropped: "1,280 dropped", bgColor: "#4AAEF0", textColor: "#FFFFFF", width: "269.28px" },
+  { label: "Payment Intent", count: "820", dropped: "1,330 dropped", bgColor: "#0A92B2", textColor: "#FFFFFF", width: "269.28px" },
+  { label: "Paid", count: "360", dropped: "460 dropped", bgColor: "#057271", textColor: "#FFFFFF", width: "213.39px" },
 ];
 
+// Original data for top failure reasons and summary table (unchanged)
 const STAGE_REASONS: StageReason[] = [
   {
     stageNum: 1, stageLabel: "did not get contacted", failurePct: "29.2%", failurePctNum: 29.2, ringColor: "#ef4444",
@@ -120,7 +121,7 @@ const SUMMARY_ROWS: SummaryRow[] = [
   { stage: "Total", entered: "8,250", failed: "5,630", failurePct: "68.2%", vsPrev: "▲ 3.8 pp", topReason: "2C. No Response", topReasonPct: "24.0%", highlight: false },
 ];
 
-// ─── Mini donut ring ─────────────────────────────────────────────────────────
+// ─── Mini donut ring (unchanged) ─────────────────────────────────────────────
 const R = 32;
 const CIRC = 2 * Math.PI * R;
 
@@ -188,39 +189,63 @@ export default function FailureFlow() {
         </div>
       </div>
 
-      {/* Pipeline flow bar – horizontal scroll on mobile */}
+      {/* ========== REDESIGNED PIPELINE FLOW CARDS ========== */}
       <div className="overflow-x-auto pb-2">
-        <div className="flex items-start bg-white py-3 px-2 rounded-xl border border-[#EDEEF5] shadow-sm min-w-[700px] md:min-w-full">
-          {PIPELINE.map((s, i) => (
-            <React.Fragment key={i}>
+        <div className="flex items-stretch gap-0 min-w-[1534px] md:min-w-full">
+          {PIPELINE_CARDS.map((card, idx) => (
+            <React.Fragment key={idx}>
+              {/* Card */}
               <div
-                className="flex flex-1 flex-col items-center py-3 px-1 rounded-md"
-                style={{ backgroundColor: s.cardBg, border: `1px solid ${s.cardBorder}` }}
+                className="flex flex-col justify-between py-4 px-3 rounded-lg shadow-sm"
+                style={{
+                  backgroundColor: card.bgColor,
+                  width: card.width,
+                  minHeight: "152px",
+                }}
               >
-                <div
-                  className="flex items-center justify-center rounded-md px-3 py-0.5 mb-1.5"
-                  style={{ backgroundColor: s.cardBorder + "18", border: `1px solid ${s.cardBorder}33` }}
-                >
-                  <span className="text-[#1A1D23] text-sm md:text-[15px] font-bold">{s.count}</span>
+                <div>
+                  <div className="text-center">
+                    <span
+                      className="text-xl md:text-2xl font-bold"
+                      style={{ color: card.textColor }}
+                    >
+                      {card.count}
+                    </span>
+                  </div>
+                  <div className="text-center mt-1">
+                    <span
+                      className="text-[11px] md:text-xs font-medium"
+                      style={{ color: card.textColor }}
+                    >
+                      {card.label}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-black text-[10px] md:text-[11px] text-center leading-tight">{s.label}</span>
-                {s.dropped && (
-                  <div
-                    className="mt-1.5 w-full text-center rounded py-0.5 px-1 text-[9px] font-semibold"
-                    style={{
-                      backgroundColor: s.accentColor + "12",
-                      border: `1px solid ${s.accentColor}33`,
-                      color: s.accentColor,
-                    }}
-                  >
-                    {s.dropped}
+                {card.dropped && (
+                  <div className="mt-3 text-center">
+                    <span
+                      className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{
+                        backgroundColor: `${card.textColor === "#FFFFFF" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"}`,
+                        color: card.textColor,
+                      }}
+                    >
+                      {card.dropped}
+                    </span>
                   </div>
                 )}
               </div>
-              {i < PIPELINE.length - 1 && (
-                <div className="flex-shrink-0 flex items-center self-center px-0.5">
-                  <svg width="16" height="12" viewBox="0 0 18 14" fill="none">
-                    <path d="M1 7h14M11 2l5 5-5 5" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              {/* Arrow between cards (except last) */}
+              {idx < PIPELINE_CARDS.length - 1 && (
+                <div className="flex items-center justify-center px-1">
+                  <svg width="20" height="16" viewBox="0 0 24 18" fill="none">
+                    <path
+                      d="M1 9h18M13 2l6 7-6 7"
+                      stroke="#94A3B8"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
               )}
@@ -229,7 +254,7 @@ export default function FailureFlow() {
         </div>
       </div>
 
-      {/* Top Failure Reasons by Stage – responsive grid */}
+      {/* ========== TOP FAILURE REASONS BY STAGE (UNCHANGED) ========== */}
       <div className="bg-white pt-5 pb-6 rounded-xl shadow-sm">
         <div className="flex flex-wrap items-center gap-2 ml-4 mb-3">
           <span className="text-[#1A1D23] text-sm md:text-[13px] font-bold">Top Failure Reasons by Stage</span>
@@ -237,7 +262,6 @@ export default function FailureFlow() {
           <span className="w-4 h-4 rounded-full bg-[#EDEEF5] flex items-center justify-center text-[9px] font-bold text-[#464555]">i</span>
         </div>
 
-        {/* 6-column grid – scroll horizontally on small screens */}
         <div className="overflow-x-auto">
           <div className="flex items-stretch min-w-[900px] md:min-w-full border border-[#E8EAF0] rounded-lg overflow-hidden">
             {STAGE_REASONS.map((sr, i) => (
@@ -246,14 +270,11 @@ export default function FailureFlow() {
                 className="flex-1 flex flex-col min-w-0"
                 style={{ borderRight: i < STAGE_REASONS.length - 1 ? "1px solid #E8EAF0" : "none" }}
               >
-                {/* Stage header */}
                 <div className="flex flex-col items-center bg-white pt-3 pb-2 px-1 border-b border-[#E8EAF0]">
                   <span className="text-[#1A1D23] text-[10px] md:text-[11px] font-bold mb-0.5">Stage {sr.stageNum}</span>
                   <span className="text-gray-400 text-[8px] md:text-[9px] mb-2 text-center leading-tight">{sr.stageLabel}</span>
                   <MiniRing pct={sr.failurePctNum} color={sr.ringColor} />
                 </div>
-
-                {/* Reason items */}
                 <div className="bg-white p-2 flex flex-col gap-1.5">
                   {sr.reasons.map((r, ri) => (
                     <div key={ri}>
@@ -274,7 +295,7 @@ export default function FailureFlow() {
         </div>
       </div>
 
-      {/* Failure Summary Table – responsive horizontal scroll */}
+      {/* ========== FAILURE SUMMARY TABLE (UNCHANGED) ========== */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <span className="text-slate-900 text-base md:text-[18px] font-bold">Failure Summary Table (Last 48H)</span>
@@ -283,7 +304,6 @@ export default function FailureFlow() {
 
         <div className="overflow-x-auto">
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm min-w-[800px] md:min-w-full">
-            {/* Header */}
             <div className="grid grid-cols-[minmax(180px,2fr)_90px_90px_90px_100px_minmax(150px,2fr)_100px] bg-slate-50 py-3 px-4 border-b border-slate-200 text-xs md:text-[13px] font-bold text-slate-500">
               <span>Stage</span>
               <span>Entered</span>
@@ -294,7 +314,6 @@ export default function FailureFlow() {
               <span>Top Reason %</span>
             </div>
 
-            {/* Rows */}
             {SUMMARY_ROWS.map((row, i) => {
               const isTotal = row.stage === "Total";
               return (
