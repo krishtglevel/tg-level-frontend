@@ -2,18 +2,20 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Search, Phone, Video, ChevronLeft, ChevronRight,
   MoreHorizontal, Send, Bold, Italic, Underline,
-  Link as LinkIcon, Image, Smile, List, AlignLeft, Undo, Redo,
+  Link as LinkIcon,   Image as ImageIcon,Smile, List, AlignLeft, Undo, Redo,
   Strikethrough, CheckCircle, Activity, RefreshCw,
   Clock, Bell, Settings, Plus, Hash, FileText,
   AlertTriangle, MessageSquare, Filter, Calendar,
   ChevronDown, ArrowUpRight, ArrowDownRight, Users,
   TrendingDown, AlertCircle, TimerReset, Mic,
   BarChart2, PlusCircle,
+  TrendingUp,
 } from "lucide-react";
-
+import { cn } from "@/lib/utils";
 // ─────────────────────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────────────────────
@@ -22,7 +24,18 @@ interface Conversation {
   unread: number; online: boolean;
   tags: { label: string; color: string }[];
 }
-
+interface FunnelStat {
+  label: string;
+  value: string;
+  percentage?: string;
+  trend: string;
+  positive: boolean;
+  cardBg: string;
+  dotColor: string;
+  barColor: string;
+  barBg: string;
+  barWidth: string;
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // STATIC DATA — Lead Funnel / My Chats
 // ─────────────────────────────────────────────────────────────────────────────
@@ -40,13 +53,79 @@ const conversations: Conversation[] = Array.from({ length: 8 }, (_, i) => ({
   ],
 }));
 
-const funnelStats = [
-  { label: "LEADS CREATED", value: "3,250", pct: null, trend: "+8.7%", up: true, color: "#3525CD", barW: "100%" },
-  { label: "CONTACTED", value: "2,210", pct: "67.9%", trend: "+6.1%", up: true, color: "#06B6D4", barW: "67.9%" },
-  { label: "INTERESTED", value: "1,420", pct: "43.7%", trend: "-4.3%", up: false, color: "#A855F7", barW: "43.7%" },
-  { label: "TRIAL ACTIVE", value: "720", pct: "22.2%", trend: "-8.9%", up: false, color: "#F97316", barW: "22.2%" },
-  { label: "PAYMENT INTENT", value: "310", pct: "9.5%", trend: "-11.2%", up: false, color: "#EC4899", barW: "9.5%" },
-  { label: "PAID", value: "132", pct: "4.1%", trend: "-9.6%", up: false, color: "#10B981", barW: "4.1%" },
+const funnelStats: FunnelStat[] = [
+  {
+    label: "LEADS CREATED",
+    value: "3,250",
+    percentage: undefined,
+    trend: "+8.7%",
+    positive: true,
+    cardBg: "bg-indigo-100",
+    dotColor: "bg-indigo-500",
+    barColor: "bg-indigo-500",
+    barBg: "bg-indigo-200",
+    barWidth: "100%",
+  },
+  {
+    label: "CONTACTED",
+    value: "2,210",
+    percentage: "67.9%",
+    trend: "+6.1%",
+    positive: true,
+    cardBg: "bg-cyan-100",
+    dotColor: "bg-cyan-500",
+    barColor: "bg-cyan-500",
+    barBg: "bg-cyan-200",
+    barWidth: "68%",
+  },
+  {
+    label: "INTERESTED",
+    value: "1,420",
+    percentage: "43.7%",
+    trend: "-4.3%",
+    positive: false,
+    cardBg: "bg-purple-100",
+    dotColor: "bg-purple-500",
+    barColor: "bg-purple-500",
+    barBg: "bg-purple-200",
+    barWidth: "44%",
+  },
+  {
+    label: "TRIAL ACTIVE",
+    value: "720",
+    percentage: "22.2%",
+    trend: "-8.9%",
+    positive: false,
+    cardBg: "bg-orange-100",
+    dotColor: "bg-orange-400",
+    barColor: "bg-orange-400",
+    barBg: "bg-orange-200",
+    barWidth: "22%",
+  },
+  {
+    label: "PAYMENT INTENT",
+    value: "310",
+    percentage: "9.5%",
+    trend: "-11.2%",
+    positive: false,
+    cardBg: "bg-pink-100",
+    dotColor: "bg-pink-500",
+    barColor: "bg-pink-500",
+    barBg: "bg-pink-200",
+    barWidth: "10%",
+  },
+  {
+    label: "PAID",
+    value: "132",
+    percentage: "4.1%",
+    trend: "-9.6%",
+    positive: false,
+    cardBg: "bg-green-100",
+    dotColor: "bg-green-500",
+    barColor: "bg-green-500",
+    barBg: "bg-green-200",
+    barWidth: "4%",
+  },
 ];
 
 const messages = [
@@ -199,16 +278,36 @@ function Avatar({ initials, size = 34 }: { initials: string; size?: number }) {
 // TOPBAR WITH DASHBOARD NAVIGATION
 // ─────────────────────────────────────────────────────────────────────────────
 function ChatTopbar() {
+  const [logoError, setLogoError] = useState(false);
+
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-[#EDEEF5]">
       <div className="flex items-center bg-white">
         <div className="flex shrink-0 items-center ml-4 mr-8 gap-3">
-          <div className="w-[40px] h-[40px] bg-[#3525CD] rounded-xl flex items-center justify-center text-white font-bold text-base">TG</div>
+          
+          {/* ✅ Logo with Image */}
+          <div className="w-[40px] h-[40px] rounded-xl overflow-hidden shrink-0 flex items-center justify-center bg-[#3525CD]">
+            {!logoError ? (
+              <Image
+                src="/logo.jpeg"
+                alt="TG Levels Logo"
+                width={40}
+                height={40}
+                className="object-cover w-full h-full"
+                onErrorCapture={() => setLogoError(true)}               />
+            ) : (
+              // Fallback if image fails
+              <span className="text-white font-bold text-base">TG</span>
+            )}
+          </div>
+
           <div className="flex flex-col shrink-0">
             <span className="text-black text-lg font-bold leading-tight">TG LEVELS</span>
             <span className="text-[#6D6D6D] text-[10px]">CRM</span>
           </div>
         </div>
+
+        {/* rest of topbar stays exactly the same */}
         <div className="flex flex-1 items-center bg-white py-[7px] px-4 gap-8 border-l border-solid border-[#EDEEF5]">
           <div className="flex flex-1 items-center gap-4">
             <div className="flex flex-1 items-center bg-white pl-3 max-w-xs rounded-3xl border border-[#C0C0C0]">
@@ -255,29 +354,27 @@ function ChatTopbar() {
 // ─────────────────────────────────────────────────────────────────────────────
 // FUNNEL STATS BAR
 // ─────────────────────────────────────────────────────────────────────────────
-function FunnelStatCard({ stat }: { stat: typeof funnelStats[0] }) {
+function FunnelStatCard({ stat }: { stat: FunnelStat }) {
   return (
-    <div className="flex-1 bg-white rounded-xl border" style={{ borderColor: stat.color + "22" }}>
-      <div className="pt-4 pb-3 px-4 rounded-xl" style={{ boxShadow: "0 2px 4px #0F172A0D" }}>
-        <div className="flex justify-between items-start mb-1">
-          <div className="w-3 h-3 rounded-full mt-0.5" style={{ background: stat.color, boxShadow: `0 0 6px ${stat.color}88` }} />
-          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 ${stat.up ? "bg-[#D1FAE5CC] text-emerald-700" : "bg-[#FFDAD666] text-[#BA1A1A]"}`}>
-            {stat.up ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
-            {stat.trend.replace(/[+-]/, "")}
-          </span>
-        </div>
-        <p className="text-[#464555] text-[10px] font-bold mt-1">{stat.label}</p>
-        <div className="flex items-baseline gap-1.5 mt-0.5 mb-2">
-          <span className="text-[#1B1B24] text-lg font-bold">{stat.value}</span>
-          {stat.pct && (
-            <span className="text-[10px] font-semibold px-1 rounded" style={{ color: stat.color, background: stat.color + "18" }}>
-              ({stat.pct})
-            </span>
-          )}
-        </div>
-        <div className="bg-[#F0ECF9] rounded-full h-1.5">
-          <div className="h-1.5 rounded-full" style={{ width: stat.barW, background: stat.color, boxShadow: `0 0 6px ${stat.color}55` }} />
-        </div>
+    <div className={cn("rounded-2xl p-4 flex flex-col gap-2 min-w-0 transition-all duration-500 flex-1", stat.cardBg)}>
+      <div className="flex items-center justify-between">
+        <span className={cn("size-2.5 rounded-full shrink-0", stat.dotColor)} />
+        <span className={cn("text-[11px] font-bold flex items-center gap-0.5 shrink-0", stat.positive ? "text-green-600" : "text-red-500")}>
+          {stat.positive ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
+          {stat.trend}
+        </span>
+      </div>
+      <p className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase leading-tight">
+        {stat.label}
+      </p>
+      <div className="flex items-baseline gap-1 flex-wrap">
+        <span className="text-[22px] font-bold text-gray-800 leading-none">
+          {stat.value}
+        </span>
+        {stat.percentage && <span className="text-[11px] text-gray-500">({stat.percentage})</span>}
+      </div>
+      <div className={cn("h-1.5 rounded-full mt-1", stat.barBg)}>
+        <div className={cn("h-full rounded-full transition-all duration-700", stat.barColor)} style={{ width: stat.barWidth }} />
       </div>
     </div>
   );
@@ -440,7 +537,7 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
           <p className="text-[10px] mt-2 opacity-80">Based on chat frequency and response time</p>
         </div>
 
-        <div className="bg-[#F3F3FE] rounded-xl p-4 border border-[#E0D9FF] flex-shrink-0">
+        {/* <div className="bg-[#F3F3FE] rounded-xl p-4 border border-[#E0D9FF] flex-shrink-0">
           <p className="text-[#191B23] text-[11px] font-bold mb-3">Interaction Metrics</p>
           <div className="space-y-3">
             {[
@@ -460,7 +557,7 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-[#F3F3FE] rounded-xl p-4 border border-[#E0D9FF] flex-shrink-0">
           <p className="text-[#191B23] text-[11px] font-bold mb-3">Recommended Actions</p>
@@ -478,6 +575,113 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
             ))}
           </div>
         </div>
+        {/* Call Status Section */}
+      <CollapsibleSection
+        id="callStatus"
+        title="Call Status"
+        isExpanded={expandedSections.has("callStatus")}
+        onToggle={() => toggleSection("callStatus")}
+      >
+        <div className="px-4 py-3">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl py-3 px-3 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-orange-500 rounded-full" />
+              <p className="text-[#943700] text-[10px] font-bold">Call Pending</p>
+            </div>
+            <p className="text-[#737686] text-[10px]">Next call scheduled for:</p>
+            <p className="text-[#191B23] text-[11px] font-bold">Today, 12:00 PM</p>
+            <button className="mt-2 bg-orange-500 text-white text-[10px] font-bold py-2 rounded-lg hover:bg-orange-600 transition-colors">
+              Initiate Call Now
+            </button>
+          </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* Calls Summary Section */}
+      <CollapsibleSection
+        id="callSummary"
+        title="Calls Summary"
+        isExpanded={expandedSections.has("callSummary")}
+        onToggle={() => toggleSection("callSummary")}
+      >
+        <div className="px-4 py-3">
+          <div className="flex flex-wrap gap-2">
+            {[
+              ["Call Done", "3", "emerald"],
+              ["Hanged Up", "1", "red"],
+              ["Missed", "0", "gray"],
+              ["Call Pending", "1", "orange"],
+              ["Ringing", "1", "blue"]
+            ].map(([label, count, color]) => (
+              <div key={label} className={`text-[9px] px-3 py-2 rounded-lg border font-bold ${
+                color === "emerald" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                color === "red" ? "bg-red-50 text-red-700 border-red-200" :
+                color === "orange" ? "bg-orange-50 text-orange-700 border-orange-200" :
+                color === "blue" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                "bg-gray-50 text-gray-700 border-gray-200"
+              }`}>
+                {label}: <span className="ml-1">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CollapsibleSection>
+
+
+      {/* Notes Section */}
+      <CollapsibleSection
+        id="notes"
+        title="Notes & Comments"
+        isExpanded={expandedSections.has("notes")}
+        onToggle={() => toggleSection("notes")}
+      >
+        <div className="px-4 py-3 space-y-3">
+          {[
+            {
+              badge: "CONVERTED",
+              badgeBg: "#D0E1FB",
+              badgeText: "#54647A",
+              time: "Just Now",
+              text: "User converted after understanding the product benefits and confirming solution matches requirements."
+            },
+            {
+              badge: "INTERESTED",
+              badgeBg: "#E8D5FF",
+              badgeText: "#5A3E8C",
+              time: "2 hours ago",
+              text: "User showed interest in 3-month plan after comparing with competitors."
+            },
+            {
+              badge: "FOLLOW UP",
+              badgeBg: "#FFE4D0",
+              badgeText: "#7D2D00",
+              time: "Yesterday",
+              text: "Scheduled follow-up call to address remaining concerns about risk management."
+            }
+          ].map((note, i) => (
+            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:border-[#3525CD33] transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className="text-[8px] font-bold px-2 py-0.5 rounded-lg"
+                  style={{ background: note.badgeBg, color: note.badgeText }}
+                >
+                  {note.badge}
+                </span>
+                <span className="text-[9px] text-[#737686]">{note.time}</span>
+              </div>
+              <p className="text-[#464555] text-[10px] leading-relaxed">{note.text}</p>
+            </div>
+          ))}
+          <div className="pt-2 border-t border-gray-200">
+            <input
+              type="text"
+              placeholder="Add a note..."
+              className="w-full text-[10px] px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-[#3525CD]"
+            />
+          </div>
+        </div>
+      </CollapsibleSection>
+      
       </div>
     );
   }
@@ -610,7 +814,7 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
         </div>
       </CollapsibleSection>
 
-      {/* Call Status Section */}
+      {/* Call Status Section
       <CollapsibleSection
         id="callStatus"
         title="Call Status"
@@ -630,9 +834,9 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
             </button>
           </div>
         </div>
-      </CollapsibleSection>
+      </CollapsibleSection> */}
 
-      {/* Calls Summary Section */}
+      {/* Calls Summary Section
       <CollapsibleSection
         id="callSummary"
         title="Calls Summary"
@@ -660,9 +864,9 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
             ))}
           </div>
         </div>
-      </CollapsibleSection>
+      </CollapsibleSection> */}
 
-      {/* Recent Calls Section */}
+      {/* Recent Calls Section
       <CollapsibleSection
         id="recentCalls"
         title="Recent Call History"
@@ -690,7 +894,7 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
             View All Calls →
           </button>
         </div>
-      </CollapsibleSection>
+      </CollapsibleSection> */}
 
       {/* Agent Assignment Section */}
       <CollapsibleSection
@@ -750,59 +954,6 @@ function RightPanelContent({ rightTab }: { rightTab: string }) {
         </div>
       </CollapsibleSection>
 
-      {/* Notes Section */}
-      <CollapsibleSection
-        id="notes"
-        title="Notes & Comments"
-        isExpanded={expandedSections.has("notes")}
-        onToggle={() => toggleSection("notes")}
-      >
-        <div className="px-4 py-3 space-y-3">
-          {[
-            {
-              badge: "CONVERTED",
-              badgeBg: "#D0E1FB",
-              badgeText: "#54647A",
-              time: "Just Now",
-              text: "User converted after understanding the product benefits and confirming solution matches requirements."
-            },
-            {
-              badge: "INTERESTED",
-              badgeBg: "#E8D5FF",
-              badgeText: "#5A3E8C",
-              time: "2 hours ago",
-              text: "User showed interest in 3-month plan after comparing with competitors."
-            },
-            {
-              badge: "FOLLOW UP",
-              badgeBg: "#FFE4D0",
-              badgeText: "#7D2D00",
-              time: "Yesterday",
-              text: "Scheduled follow-up call to address remaining concerns about risk management."
-            }
-          ].map((note, i) => (
-            <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:border-[#3525CD33] transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <span
-                  className="text-[8px] font-bold px-2 py-0.5 rounded-lg"
-                  style={{ background: note.badgeBg, color: note.badgeText }}
-                >
-                  {note.badge}
-                </span>
-                <span className="text-[9px] text-[#737686]">{note.time}</span>
-              </div>
-              <p className="text-[#464555] text-[10px] leading-relaxed">{note.text}</p>
-            </div>
-          ))}
-          <div className="pt-2 border-t border-gray-200">
-            <input
-              type="text"
-              placeholder="Add a note..."
-              className="w-full text-[10px] px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-[#3525CD]"
-            />
-          </div>
-        </div>
-      </CollapsibleSection>
 
       {/* Last Seen Trades Section */}
       <CollapsibleSection
@@ -927,7 +1078,7 @@ function ChatUI() {
               <div className="flex items-center gap-1 text-gray-400">
                 {[Bold, Italic, Underline, Strikethrough].map((Icon, i) => <button key={i} className="hover:text-gray-600 p-0.5 transition-colors"><Icon className="w-3 h-3" /></button>)}
                 <div className="w-px h-3.5 bg-gray-200 mx-0.5" />
-                {[LinkIcon, Image, Smile, List, AlignLeft].map((Icon, i) => <button key={i} className="hover:text-gray-600 p-0.5 transition-colors"><Icon className="w-3 h-3" /></button>)}
+                {[LinkIcon, ImageIcon, Smile, List, AlignLeft].map((Icon, i) => <button key={i} className="hover:text-gray-600 p-0.5 transition-colors"><Icon className="w-3 h-3" /></button>)}
                 <div className="w-px h-3.5 bg-gray-200 mx-0.5" />
                 {[Undo, Redo].map((Icon, i) => <button key={i} className="hover:text-gray-600 p-0.5 transition-colors"><Icon className="w-3 h-3" /></button>)}
               </div>
@@ -1447,7 +1598,7 @@ export default function ChatsPage() {
           </button>
         ))}
         <button className="ml-1 shrink-0 p-2 text-gray-400 hover:text-[#3525CD] transition-colors">
-          <PlusCircle className="w-4 h-4" />
+          {/* <PlusCircle className="w-4 h-4" /> */}
         </button>
       </div>
 

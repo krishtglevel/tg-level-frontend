@@ -3,14 +3,17 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import MetricsRow from "./MetricsRow";
 import { SubNav } from "./SubNav";
-import FilterBar from "./FilterBar";// resolved – keep local spelling
+import FiltersBar from "./FilterBar";
 import { ArrowUpRight } from "lucide-react";
+import { FilterProvider } from "./FilterContext";
 
 function RealTimeFunnelHeader() {
   return (
     <div className="flex items-end justify-between px-4 pt-2 pb-1">
       <div>
-        <h2 className="text-[20px] font-bold tracking-tight">Real-time Funnel Progress</h2>
+        <h2 className="text-[20px] font-bold tracking-tight">
+          Real-time Funnel Progress
+        </h2>
         <p className="text-[13px] text-muted-foreground mt-1">
           Live performance metrics compared to previous 48-hour window.
         </p>
@@ -18,6 +21,34 @@ function RealTimeFunnelHeader() {
       <button className="text-[12px] font-semibold text-primary inline-flex items-center gap-1">
         View Detailed Report <ArrowUpRight className="size-3.5" />
       </button>
+    </div>
+  );
+}
+
+function CrmLayoutInner({
+  children,
+  showSubNav,
+  showMetrics,
+}: {
+  children: ReactNode;
+  showSubNav: boolean;
+  showMetrics: boolean;
+}) {
+  return (
+    <div className="min-h-screen flex bg-background text-foreground">
+      <Sidebar />
+      <div className="flex-1 min-w-0 flex flex-col">
+        <Topbar />
+        <RealTimeFunnelHeader />
+        <FiltersBar />
+        {showMetrics && (
+          <div className="px-8 pt-6">
+            <MetricsRow />
+          </div>
+        )}
+        {showSubNav && <SubNav />}
+        <main className="flex-1 p-8 space-y-6">{children}</main>
+      </div>
     </div>
   );
 }
@@ -32,20 +63,10 @@ export function CrmLayout({
   showMetrics?: boolean;
 }) {
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col">
-        <Topbar />
-        <RealTimeFunnelHeader />
-        <FilterBar />
-        {showMetrics && (
-          <div className="px-8 pt-6">
-            <MetricsRow />
-          </div>
-        )}
-        {showSubNav && <SubNav />}
-        <main className="flex-1 p-8 space-y-6">{children}</main>
-      </div>
-    </div>
+    <FilterProvider>
+      <CrmLayoutInner showSubNav={showSubNav} showMetrics={showMetrics}>
+        {children}
+      </CrmLayoutInner>
+    </FilterProvider>
   );
 }

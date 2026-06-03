@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Radio,
@@ -20,12 +21,12 @@ const nav = [
   { to: "/crm/broadcast",  label: "Broadcast Center", icon: Radio           },
   { to: "/crm/leadership", label: "leadership hub",   icon: BarChart2       },
   { to: "/crm/badges",     label: "agent badges",     icon: Award           },
-  { to: "/crm/packaged",   label: "packaged",         icon: Package         },
 ];
 
 export function Sidebar() {
   const path = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const toggleCollapse = () => setCollapsed((prev) => !prev);
 
@@ -36,22 +37,33 @@ export function Sidebar() {
         collapsed ? "w-[72px]" : "w-[210px]"
       )}
     >
-      {/* ── Logo (no toggle button here) ── */}
+      {/* ── Logo Section ── */}
       <div className="flex items-center justify-center px-3 pt-6 pb-7">
         <div className={cn("flex items-center gap-2.5", collapsed && "justify-center w-full")}>
-          <div
-            className="size-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
-            style={{
-              background: "linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #0f766e 100%)",
-            }}
-          >
-            <svg viewBox="0 0 20 20" className="size-5" fill="none">
-              <rect x="3" y="3" width="6" height="6" rx="1" fill="white" opacity="0.9" />
-              <rect x="11" y="3" width="6" height="6" rx="1" fill="white" opacity="0.9" />
-              <rect x="3" y="11" width="6" height="6" rx="1" fill="white" opacity="0.9" />
-              <rect x="11" y="11" width="6" height="6" rx="1" fill="white" opacity="0.5" />
-            </svg>
+          {/* Logo Container */}
+          <div className="size-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm overflow-hidden bg-gradient-to-br from-teal-600 to-teal-500">
+            {!logoError ? (
+              <Image
+                src="/logo.jpeg" // ✅ Correct: No "public" in the path
+                alt="TG Levels Logo"
+                width={36}
+                height={36}
+                className="object-contain"
+                onError={() => setLogoError(true)}
+                priority
+              />
+            ) : (
+              // Fallback SVG if image fails to load
+              <svg viewBox="0 0 20 20" className="size-5" fill="none">
+                <rect x="3" y="3" width="6" height="6" rx="1" fill="white" opacity="0.9" />
+                <rect x="11" y="3" width="6" height="6" rx="1" fill="white" opacity="0.9" />
+                <rect x="3" y="11" width="6" height="6" rx="1" fill="white" opacity="0.9" />
+                <rect x="11" y="11" width="6" height="6" rx="1" fill="white" opacity="0.5" />
+              </svg>
+            )}
           </div>
+
+          {/* Brand Text */}
           {!collapsed && (
             <div className="leading-tight">
               <div className="font-black text-[14px] tracking-tight text-gray-900">
@@ -100,10 +112,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Spacer to push collapse button and user card down */}
+      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* ── Collapse toggle button (now above user card) ── */}
+      {/* ── Collapse toggle button ── */}
       <div className={cn("px-3 py-2", collapsed && "flex justify-center")}>
         <button
           onClick={toggleCollapse}
@@ -120,7 +132,7 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* User card (admin node) */}
+      {/* User card */}
       <div
         className={cn(
           "m-3 p-3 flex items-center gap-2.5 border-t border-gray-100 pt-4",
