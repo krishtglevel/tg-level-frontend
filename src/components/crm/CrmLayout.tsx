@@ -5,13 +5,18 @@ import MetricsRow from "./MetricsRow";
 import { SubNav } from "./SubNav";
 import FiltersBar from "./FilterBar";
 import { ArrowUpRight } from "lucide-react";
+import { FilterProvider } from "./FilterContext";
 
 function RealTimeFunnelHeader() {
   return (
     <div className="flex items-end justify-between px-4 pt-2 pb-1">
       <div>
-        <h2 className="text-[20px] font-bold tracking-tight">Real-time Funnel Progress</h2>
-        <p className="text-[13px] text-muted-foreground mt-1">Live performance metrics compared to previous 48-hour window.</p>
+        <h2 className="text-[20px] font-bold tracking-tight">
+          Real-time Funnel Progress
+        </h2>
+        <p className="text-[13px] text-muted-foreground mt-1">
+          Live performance metrics compared to previous 48-hour window.
+        </p>
       </div>
       <button className="text-[12px] font-semibold text-primary inline-flex items-center gap-1">
         View Detailed Report <ArrowUpRight className="size-3.5" />
@@ -20,14 +25,14 @@ function RealTimeFunnelHeader() {
   );
 }
 
-export function CrmLayout({
+function CrmLayoutInner({
   children,
-  showSubNav = true,
-  showMetrics = true,
+  showSubNav,
+  showMetrics,
 }: {
   children: ReactNode;
-  showSubNav?: boolean;
-  showMetrics?: boolean;
+  showSubNav: boolean;
+  showMetrics: boolean;
 }) {
   return (
     <div className="min-h-screen flex bg-background text-foreground">
@@ -45,5 +50,23 @@ export function CrmLayout({
         <main className="flex-1 p-8 space-y-6">{children}</main>
       </div>
     </div>
+  );
+}
+
+export function CrmLayout({
+  children,
+  showSubNav = true,
+  showMetrics = true,
+}: {
+  children: ReactNode;
+  showSubNav?: boolean;
+  showMetrics?: boolean;
+}) {
+  return (
+    <FilterProvider>
+      <CrmLayoutInner showSubNav={showSubNav} showMetrics={showMetrics}>
+        {children}
+      </CrmLayoutInner>
+    </FilterProvider>
   );
 }

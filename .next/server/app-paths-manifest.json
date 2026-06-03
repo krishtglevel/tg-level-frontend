@@ -3,5 +3,5 @@
   "/(authenticated)/crm/chats/page": "app/(authenticated)/crm/chats/page.js",
   "/(authenticated)/crm/broadcast/page": "app/(authenticated)/crm/broadcast/page.js",
   "/(authenticated)/crm/leadership/page": "app/(authenticated)/crm/leadership/page.js",
-  "/(authenticated)/crm/packaged/page": "app/(authenticated)/crm/packaged/page.js"
+  "/(authenticated)/crm/badges/page": "app/(authenticated)/crm/badges/page.js"
 }
